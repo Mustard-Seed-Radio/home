@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="el">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,7 +9,6 @@
   <link rel="icon" type="image/png" href="mustardseed.png">
 
   <style>
-    /* Reset styles */
     * {
       margin: 0;
       padding: 0;
@@ -29,7 +28,6 @@
       padding: 2rem;
     }
 
-    /* Logo */
     .logo {
       width: 120px;
       height: 120px;
@@ -41,15 +39,22 @@
 
     h1 {
       font-size: 3rem;
-      margin-bottom: 1rem;
+      margin-bottom: 0.5rem;
       color: #ff6f61;
       text-shadow: 1px 1px 5px rgba(0,0,0,0.5);
     }
 
-    p {
-      font-size: 1.2rem;
-      margin: 1rem 0 2rem 0;
+    .tagline {
+      font-size: 1.3rem;
       color: #ccc;
+      margin-bottom: 1.5rem;
+    }
+
+    .tagline span {
+      display: block;
+      font-size: 1rem;
+      color: #aaa;
+      margin-top: 0.3rem;
     }
 
     audio {
@@ -64,11 +69,12 @@
     footer {
       margin-top: 3rem;
       font-size: 0.9rem;
-      color: #555;
+      color: #aaa;
     }
 
     @media (max-width: 500px) {
       h1 { font-size: 2rem; }
+      .tagline { font-size: 1rem; }
       audio { max-width: 90%; }
       .logo { width: 80px; height: 80px; }
     }
@@ -80,7 +86,12 @@
   <img src="mustardseed.png" alt="Mustard Seed Radio Logo" class="logo">
 
   <h1>🎧 Mustard Seed Radio</h1>
-  <p>Streaming live 24/7 – enjoy the music!</p>
+  
+  <!-- Greek tagline -->
+  <div class="tagline">
+    Ακούστε ζωντανά όλο το 24ωρο
+    <span>Streaming live 24/7</span>
+  </div>
 
   <audio controls autoplay>
     <source src="https://centova.gr-net.gr/proxy/mustardseed/stream" type="audio/mpeg">
@@ -88,7 +99,8 @@
   </audio>
 
   <footer>
-    &copy; 2026 Mustard Seed Radio. All rights reserved.
+    &copy; 2026 Mustard Seed Radio. Όλα τα δικαιώματα διατηρούνται. <br>
+    All rights reserved.
   </footer>
 
 </body>
