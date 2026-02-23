@@ -10,42 +10,33 @@
 </head>
 <body>
 
-<h1>🎧 Mustard Seed Radio - Ιντερνετικό Ραδιόφωνο</h1>
+  <h1>🎧 Mustard Seed Radio - Ιντερνετικό Ραδιόφωνο</h1>
 
-<div class="tagline">
-  Ακούστε ζωντανά όλο το 24ωρο
-  <span>Streaming live 24/7</span>
-</div>
-
-<div class="player-card">
-
-  <div class="now-playing" id="nowPlaying">🎵 Now Playing: Loading...</div>
-
-  <button id="playBtn">▶ Play Live Radio</button>
-
-  <div class="loading" id="loadingText">⏳ Buffering stream...</div>
-
-  <div class="equalizer" id="equalizer">
-    <div class="bar"></div>
-    <div class="bar"></div>
-    <div class="bar"></div>
-    <div class="bar"></div>
-    <div class="bar"></div>
+  <div class="tagline">
+    Ακούστε ζωντανά όλο το 24ωρο
+    <span>Streaming live 24/7</span>
   </div>
 
-  <div class="volume-control">
-    🔊 Volume
-    <input type="range" id="volumeSlider" min="0" max="1" step="0.01" value="1">
+  <div class="player">
+    <button id="playBtn">▶ Play Live Radio</button>
+    <div class="loading" id="loadingText">⏳ Buffering stream...</div>
+
+    <div class="equalizer" id="equalizer">
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+      <div class="bar"></div>
+    </div>
   </div>
 
-</div>
+  <footer>
+    &copy; 2026 Mustard Seed Radio - all rights reserved.
+  </footer>
 
-<footer>
-  &copy; 2026 Mustard Seed Radio - all rights reserved.
-</footer>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
-<script src="player.js"></script>
+  <!-- Howler -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
+  <script src="player.js"></script>
 
 </body>
 </html>
