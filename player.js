@@ -11,12 +11,12 @@ const sound = new Howl({
 btn.addEventListener("click", () => {
   if (sound.playing()) {
     sound.pause();
-    btn.textContent = "▶ Πάτα να γίνει χαμός";
+    btn.textContent = "▶ Πάτα να γίνει χαμός!";
     equalizer.style.visibility = "hidden";
     loadingText.style.display = "none";
   } else {
     loadingText.style.display = "block";
-    btn.textContent = "⏸ Η υπομονή είναι αρετή...";
+    btn.textContent = "⏸ Παύση";
     sound.play();
   }
 });
@@ -34,5 +34,5 @@ sound.on('loaderror', () => {
 
 sound.on('end', () => {
   equalizer.style.visibility = "hidden";
-  btn.textContent = "▶ Play Live Radio";
+  btn.textContent = "▶ Πάτα να γίνει χαμός!";
 });
