@@ -1,34 +1,59 @@
-name: Deploy MustardSeed site
+name: Deploy Mustard Seed Radio
 
 on:
   push:
     branches:
       - main
-      - dev
+      - develop
+  pull_request:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
 
 jobs:
-  build-and-deploy:
+
+  build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Prepare site
+      - name: Build site
         run: |
           mkdir build
-          cp -r * build/ || true
+          rsync -av --exclude build . build
 
-      - name: Set domain depending on branch
+      - name: Set domain
+        if: github.event_name == 'push'
         run: |
-          if [ "${GITHUB_REF_NAME}" = "main" ]; then
+          if [ "${{ github.ref_name }}" = "main" ]; then
             echo "mustardseed.gr" > build/CNAME
-          else
+          elif [ "${{ github.ref_name }}" = "dev" ]; then
             echo "dev.mustardseed.gr" > build/CNAME
           fi
 
-      - name: Deploy to gh-pages
-        uses: peaceiris/actions-gh-pages@v4
+      - name: Upload site artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./build
+          path: build
+
+  deploy:
+    if: github.event_name == 'push'
+    needs: build
+    runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
