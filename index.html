@@ -115,16 +115,21 @@ body {
 
 /* CHAT */
 .chat-container {
-  width: 350px;
+  width: 300px;
   max-width: 90%;
   height: 400px;
   background: rgba(0,0,0,0.6);
   border: 1px solid #333;
   display: flex;
   flex-direction: column;
-  margin-top: 2rem;
+  position: fixed;
+  right: 20px;
+  top: 150px;
+  z-index: 5;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(0,0,0,0.5);
 }
-.chat-container h2 { margin: 8px 0; font-weight: bold; }
+.chat-container h2 { margin: 8px 0; font-weight: bold; font-size: 1rem; text-align: center; }
 
 .messages {
   flex: 1;
@@ -143,30 +148,47 @@ body {
 
 .input-area {
   display: flex;
+  flex-direction: column; /* stack vertically */
   border-top: 1px solid #333;
+  padding: 6px;
+  gap: 6px;
 }
-
 .input-area input {
-  flex: 1;
   border: none;
   padding: 8px;
   background: #111;
   color: #fff;
-  margin-right: 4px;
+  border-radius: 6px;
 }
 .input-area button {
   border: none;
-  background: #ff6f61;
+  background: linear-gradient(135deg, #ff6f61, #ffb347);
   color: #111;
-  padding: 8px 12px;
+  padding: 10px;
+  font-weight: bold;
   cursor: pointer;
+  border-radius: 6px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.input-area button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0 8px rgba(255,111,97,0.6);
 }
 
+/* MOBILE RESPONSIVE CHAT */
 @media (max-width:500px) {
   .navbar { flex-direction: column; gap: 10px; }
   .navbar h1 { font-size:1.2rem; }
   .description { right:10px; left:10px; max-width:none; }
   #playBtn { font-size:1rem; padding:14px 26px; }
+  .chat-container {
+    position: static;
+    width: 100%;
+    height: 350px;
+    margin-top: 2rem;
+    border-radius: 8px;
+  }
+  .messages { font-size: 0.85rem; }
 }
 
 /* reCAPTCHA hide badge for invisible */
@@ -204,7 +226,6 @@ body {
   </div>
 </div>
 
-<!-- Invisible reCAPTCHA widget -->
 <div class="g-recaptcha"
      data-sitekey="6Lcs260sAAAAAPC0UqtQWnNW5jd_8UKdzOXOn_oY"
      data-callback="onRecaptchaSuccess"
@@ -248,13 +269,11 @@ const messages = document.getElementById('messages');
 const sendBtn = document.getElementById('sendBtn');
 const usersColor = {};
 
-// RATE-LIMIT
-const RATE_LIMIT_MS = 10000; // 10 seconds
+const RATE_LIMIT_MS = 10000; 
 let lastSent = parseInt(localStorage.getItem('lastSent') || '0');
 
 function sendMessage() {
   const now = Date.now();
-
   if (now - lastSent < RATE_LIMIT_MS) return;
 
   const name = chatName.value.trim() || 'Ανώνυμος';
@@ -278,25 +297,17 @@ function sendMessage() {
   startCooldown();
 }
 
-// Cooldown visual
 function startCooldown() {
   sendBtn.disabled = true;
   let remaining = RATE_LIMIT_MS / 1000;
   sendBtn.textContent = `Περίμενε ${remaining}s`;
-
   const interval = setInterval(() => {
     remaining -= 1;
-    if (remaining > 0) {
-      sendBtn.textContent = `Περίμενε ${remaining}s`;
-    } else {
-      clearInterval(interval);
-      sendBtn.disabled = false;
-      sendBtn.textContent = "Send";
-    }
+    if (remaining > 0) sendBtn.textContent = `Περίμενε ${remaining}s`;
+    else { clearInterval(interval); sendBtn.disabled = false; sendBtn.textContent = "Send"; }
   }, 1000);
 }
 
-// Firebase listener
 onChildAdded(chatRef, snapshot => {
   const msg = snapshot.val();
   if (!usersColor[msg.name]) usersColor[msg.name] = `hsl(${Math.floor(Math.random()*360)},70%,60%)`;
@@ -310,7 +321,7 @@ onChildAdded(chatRef, snapshot => {
   messages.scrollTop = messages.scrollHeight;
 });
 
-// ===== AUDIO PLAYER =====
+// AUDIO PLAYER
 const loadingText = document.getElementById("loadingText");
 const equalizer = document.getElementById("equalizer");
 const btn = document.getElementById("playBtn");
@@ -328,7 +339,6 @@ btn.addEventListener("click", ()=>{
     sound.play();
   }
 });
-
 sound.on('play', ()=>{
   loadingText.style.display="none";
   equalizer.style.visibility="visible";
@@ -343,7 +353,7 @@ sound.on('end', ()=>{
   btn.textContent="▶ Πάτα να γίνει χαμός!";
 });
 
-// ===== TOGGLE DESCRIPTION =====
+// DESCRIPTION TOGGLE
 const toggleDescBtn = document.getElementById("toggleDesc");
 const description = document.querySelector(".description");
 toggleDescBtn.addEventListener("click", ()=>{
@@ -353,7 +363,7 @@ toggleDescBtn.addEventListener("click", ()=>{
     : "ℹ️ Τι είναι το Mustard Seed Radio;";
 });
 
-// ===== RECAPTCHA =====
+// RECAPTCHA
 sendBtn.addEventListener('click', () => {
   const now = Date.now();
   if (now - lastSent < RATE_LIMIT_MS) {
@@ -362,11 +372,7 @@ sendBtn.addEventListener('click', () => {
   }
   grecaptcha.execute();
 });
-
-// callback for successful reCAPTCHA
-window.onRecaptchaSuccess = function(token){
-  sendMessage();
-}
+window.onRecaptchaSuccess = function(token){ sendMessage(); }
 </script>
 </body>
 </html>
