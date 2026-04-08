@@ -245,15 +245,25 @@ function flushCache() {
 const chatName = document.getElementById('chatName');
 const chatInput = document.getElementById('chatInput');
 const messages = document.getElementById('messages');
+const sendBtn = document.getElementById('sendBtn');
 const usersColor = {};
 
+// RATE-LIMIT
+const RATE_LIMIT_MS = 10000; // 10 seconds
+let lastSent = parseInt(localStorage.getItem('lastSent') || '0');
+
 function sendMessage() {
+  const now = Date.now();
+
+  if (now - lastSent < RATE_LIMIT_MS) return;
+
   const name = chatName.value.trim() || 'Ανώνυμος';
   const text = chatInput.value.trim();
-  if(!text) return;
-  const msg = { name, text, timestamp: Date.now() };
+  if (!text) return;
 
-  if(navigator.onLine){
+  const msg = { name, text, timestamp: now };
+
+  if (navigator.onLine) {
     push(chatRef, msg);
     flushCache();
   } else {
@@ -261,15 +271,37 @@ function sendMessage() {
     localStorage.setItem('offlineCache', JSON.stringify(offlineCache));
     alert('Offline: μήνυμα θα σταλεί μόλις είστε online');
   }
+
   chatInput.value = '';
+  lastSent = now;
+  localStorage.setItem('lastSent', lastSent);
+  startCooldown();
+}
+
+// Cooldown visual
+function startCooldown() {
+  sendBtn.disabled = true;
+  let remaining = RATE_LIMIT_MS / 1000;
+  sendBtn.textContent = `Περίμενε ${remaining}s`;
+
+  const interval = setInterval(() => {
+    remaining -= 1;
+    if (remaining > 0) {
+      sendBtn.textContent = `Περίμενε ${remaining}s`;
+    } else {
+      clearInterval(interval);
+      sendBtn.disabled = false;
+      sendBtn.textContent = "Send";
+    }
+  }, 1000);
 }
 
 // Firebase listener
-onChildAdded(chatRef, snapshot=>{
+onChildAdded(chatRef, snapshot => {
   const msg = snapshot.val();
-  if(!usersColor[msg.name]) usersColor[msg.name] = `hsl(${Math.floor(Math.random()*360)},70%,60%)`;
+  if (!usersColor[msg.name]) usersColor[msg.name] = `hsl(${Math.floor(Math.random()*360)},70%,60%)`;
   const div = document.createElement('div');
-  div.className='message';
+  div.className = 'message';
   div.style.background = usersColor[msg.name];
   div.style.color = '#111';
   const time = new Date(msg.timestamp).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
@@ -322,8 +354,12 @@ toggleDescBtn.addEventListener("click", ()=>{
 });
 
 // ===== RECAPTCHA =====
-const sendBtn = document.getElementById('sendBtn');
-sendBtn.addEventListener('click', ()=>{
+sendBtn.addEventListener('click', () => {
+  const now = Date.now();
+  if (now - lastSent < RATE_LIMIT_MS) {
+    alert(`Περίμενε λίγο πριν στείλεις άλλο μήνυμα (${Math.ceil((RATE_LIMIT_MS - (now - lastSent))/1000)} δευτ.)`);
+    return;
+  }
   grecaptcha.execute();
 });
 
