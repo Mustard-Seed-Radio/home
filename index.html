@@ -3,70 +3,370 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Mustard Seed Radio</title>
-
 <link rel="icon" type="image/png" href="mustard-seed-logo.png">
-<link rel="stylesheet" href="style.css">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  background: linear-gradient(135deg, #1a1a1a, #111111);
+  color: #fff;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  text-align: center;
+  padding: 2rem;
+}
 
+/* NAVBAR */
+.navbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 25px;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(6px);
+  z-index: 10;
+}
+.navbar h1 { font-size: 1.5rem; color: #ff6f61; }
+
+/* Dropdown */
+.nav-dropdown summary {
+  cursor: pointer;
+  list-style: none;
+  font-size: 0.95rem;
+  background: linear-gradient(135deg, #ff6f61, #ffb347);
+  color: #111;
+  padding: 10px 18px;
+  border-radius: 30px;
+  border: none;
+  font-weight: 600;
+  box-shadow: 0 0 10px rgba(255,111,97,0.4);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.nav-dropdown summary:hover { transform: translateY(-1px); box-shadow: 0 0 18px rgba(255,111,97,0.7); }
+.nav-dropdown summary::-webkit-details-marker { display:none; }
+
+/* Description panel */
+.description {
+  position: absolute;
+  top: 70px;
+  right: 20px;
+  max-width: 400px;
+  padding: 15px 20px;
+  background: #111;
+  color: #eee;
+  border-radius: 12px;
+  font-size: 1rem;
+  line-height: 1.6;
+  box-shadow: 0 0 10px rgba(255, 200, 0, 0.2);
+  text-align: left;
+}
+.description p { margin-bottom: 10px; }
+
+/* PLAYER */
+.player {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 120px; /* avoid navbar overlap */
+}
+#playBtn {
+  background: linear-gradient(135deg, #ff6f61, #ffb347);
+  color: #111;
+  border: none;
+  padding: 16px 32px;
+  font-size: 1.2rem;
+  border-radius: 50px;
+  cursor: pointer;
+  box-shadow: 0 0 20px rgba(255,111,97,0.5);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+#playBtn:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(255,111,97,0.8); }
+
+.equalizer {
+  display: flex;
+  gap: 6px;
+  height: 40px;
+  align-items: flex-end;
+  visibility: hidden;
+}
+.bar {
+  width: 6px;
+  background: linear-gradient(180deg, #ff6f61, #ffb347);
+  border-radius: 4px;
+  animation: bounce 1s infinite ease-in-out;
+}
+.bar:nth-child(1){ animation-delay: 0s; }
+.bar:nth-child(2){ animation-delay: .2s; }
+.bar:nth-child(3){ animation-delay: .4s; }
+.bar:nth-child(4){ animation-delay: .6s; }
+.bar:nth-child(5){ animation-delay: .8s; }
+@keyframes bounce { 0%,100%{height:8px;} 50%{height:40px;} }
+
+.loading { font-size:0.9rem; color:#ffb347; display:none; }
+
+/* CHAT */
+.chat-container {
+  width: 350px;
+  max-width: 90%;
+  height: 400px;
+  background: rgba(0,0,0,0.6);
+  border: 1px solid #333;
+  display: flex;
+  flex-direction: column;
+  margin-top: 2rem;
+}
+.chat-container h2 { margin: 8px 0; font-weight: bold; }
+
+.messages {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+  font-size: 0.9rem;
+  text-align: left;
+}
+
+.message {
+  margin-bottom: 6px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  word-wrap: break-word;
+}
+
+.input-area {
+  display: flex;
+  border-top: 1px solid #333;
+}
+
+.input-area input {
+  flex: 1;
+  border: none;
+  padding: 8px;
+  background: #111;
+  color: #fff;
+  margin-right: 4px;
+}
+.input-area button {
+  border: none;
+  background: #ff6f61;
+  color: #111;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+@media (max-width:500px) {
+  .navbar { flex-direction: column; gap: 10px; }
+  .navbar h1 { font-size:1.2rem; }
+  .description { right:10px; left:10px; max-width:none; }
+  #playBtn { font-size:1rem; padding:14px 26px; }
+}
+
+/* reCAPTCHA hide badge for invisible */
+.grecaptcha-badge { visibility: hidden; }
+</style>
 </head>
 
 <body>
 
 <header class="navbar">
-
-<h1>🎧 Mustard Seed</h1>
-
-<details class="nav-dropdown">
-<summary>ℹ️ Τι είναι το Mustard Seed Radio;</summary>
-
-<div class="description">
-
-<p>
-Καφενειακού τύπου κουβέντα για κάθε περίσταση και θέμα.
-Ένας μουσταρδόσπορος αρκεί, μικρός μεν, αλλά ικανός να πυροδοτήσει
-ολόκληρη συζήτηση.
-</p>
-
-<p>
-Είμαστε εφοδιασμένοι με τις απαραίτητες περγαμηνές, μιας και καθόμαστε
-αναπαυτικά πάνω στον φράχτη που χωρίζει τη Γενιά Χ από τη Γενιά Υ τότε
-που όλα ήταν λίγο πιο ζάχαρη.
-</p>
-
-<p>
-Ο παρόν σταθμός και οι εκπομπές του λειτουργούν ως ψυχοθεραπεία για
-κάποιους από εμάς — χωρίς ιατρική συνταγή! 😌
-</p>
-
-</div>
-</details>
-
+  <h1>🎧 Mustard Seed</h1>
+  <details class="nav-dropdown">
+    <summary id="toggleDesc">ℹ️ Τι είναι το Mustard Seed Radio;</summary>
+    <div class="description">
+      <p>Καφενειακού τύπου κουβέντα για κάθε περίσταση και θέμα...</p>
+    </div>
+  </details>
 </header>
 
-
 <div class="player">
-
-<button id="playBtn">▶ Πάτα να γίνει χαμός!</button>
-
-<div class="loading" id="loadingText">
-⏳ «Λίγο buffering ακόμα ... το πρόγραμμα μας ταξιδεύει προς τα αυτιά σας! 😜»
+  <button id="playBtn">▶ Πάτα να γίνει χαμός!</button>
+  <div class="loading" id="loadingText">⏳ «Λίγο buffering...»</div>
+  <div class="equalizer" id="equalizer">
+    <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+  </div>
 </div>
 
-<div class="equalizer" id="equalizer">
-<div class="bar"></div>
-<div class="bar"></div>
-<div class="bar"></div>
-<div class="bar"></div>
-<div class="bar"></div>
+<div class="chat-container">
+  <h2>📬 Επικοινωνήστε με τον παραγωγό</h2>
+  <div class="messages" id="messages"></div>
+  <div class="input-area">
+    <input type="text" id="chatName" placeholder="Όνομα..." />
+    <input type="text" id="chatInput" placeholder="Γράψε μήνυμα..." />
+    <button id="sendBtn">Send</button>
+  </div>
 </div>
 
-</div>
+<!-- Invisible reCAPTCHA widget -->
+<div class="g-recaptcha"
+     data-sitekey="6Lcs260sAAAAAPC0UqtQWnNW5jd_8UKdzOXOn_oY"
+     data-callback="onRecaptchaSuccess"
+     data-size="invisible"></div>
 
-
-<!-- Howler -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
-<script src="player.js"></script>
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
 
+// ===== FIREBASE CONFIG =====
+const firebaseConfig = {
+  apiKey: "AIzaSyCR2jYJEqYIA7XW3r4aOaRxEtbZAS4bNQw",
+  authDomain: "mustard-seed-gr.firebaseapp.com",
+  databaseURL: "https://mustard-seed-gr-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "mustard-seed-gr",
+  storageBucket: "mustard-seed-gr.appspot.com",
+  messagingSenderId: "147197767959",
+  appId: "1:147197767959:web:6d27cb7d746a8139090752"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const chatRef = ref(db, 'chat');
+
+// ===== OFFLINE CACHE =====
+let offlineCache = JSON.parse(localStorage.getItem('offlineCache')||'[]');
+function flushCache() {
+  while(offlineCache.length>0){
+    const m = offlineCache.shift();
+    push(chatRef, m);
+  }
+  localStorage.setItem('offlineCache', JSON.stringify(offlineCache));
+}
+
+// ===== CHAT =====
+const chatName = document.getElementById('chatName');
+const chatInput = document.getElementById('chatInput');
+const messages = document.getElementById('messages');
+const sendBtn = document.getElementById('sendBtn');
+const usersColor = {};
+
+// RATE-LIMIT
+const RATE_LIMIT_MS = 10000; // 10 seconds
+let lastSent = parseInt(localStorage.getItem('lastSent') || '0');
+
+function sendMessage() {
+  const now = Date.now();
+
+  if (now - lastSent < RATE_LIMIT_MS) return;
+
+  const name = chatName.value.trim() || 'Ανώνυμος';
+  const text = chatInput.value.trim();
+  if (!text) return;
+
+  const msg = { name, text, timestamp: now };
+
+  if (navigator.onLine) {
+    push(chatRef, msg);
+    flushCache();
+  } else {
+    offlineCache.push(msg);
+    localStorage.setItem('offlineCache', JSON.stringify(offlineCache));
+    alert('Offline: μήνυμα θα σταλεί μόλις είστε online');
+  }
+
+  chatInput.value = '';
+  lastSent = now;
+  localStorage.setItem('lastSent', lastSent);
+  startCooldown();
+}
+
+// Cooldown visual
+function startCooldown() {
+  sendBtn.disabled = true;
+  let remaining = RATE_LIMIT_MS / 1000;
+  sendBtn.textContent = `Περίμενε ${remaining}s`;
+
+  const interval = setInterval(() => {
+    remaining -= 1;
+    if (remaining > 0) {
+      sendBtn.textContent = `Περίμενε ${remaining}s`;
+    } else {
+      clearInterval(interval);
+      sendBtn.disabled = false;
+      sendBtn.textContent = "Send";
+    }
+  }, 1000);
+}
+
+// Firebase listener
+onChildAdded(chatRef, snapshot => {
+  const msg = snapshot.val();
+  if (!usersColor[msg.name]) usersColor[msg.name] = `hsl(${Math.floor(Math.random()*360)},70%,60%)`;
+  const div = document.createElement('div');
+  div.className = 'message';
+  div.style.background = usersColor[msg.name];
+  div.style.color = '#111';
+  const time = new Date(msg.timestamp).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+  div.textContent = `[${time}] ${msg.name}: ${msg.text}`;
+  messages.appendChild(div);
+  messages.scrollTop = messages.scrollHeight;
+});
+
+// ===== AUDIO PLAYER =====
+const loadingText = document.getElementById("loadingText");
+const equalizer = document.getElementById("equalizer");
+const btn = document.getElementById("playBtn");
+const sound = new Howl({ src: ['https://centova.gr-net.gr/proxy/mustardseed/stream'], html5:true, volume:1.0 });
+
+btn.addEventListener("click", ()=>{
+  if(sound.playing()){
+    sound.pause();
+    btn.textContent="▶ Πάτα να γίνει χαμός!";
+    equalizer.style.visibility="hidden";
+    loadingText.style.display="none";
+  } else {
+    loadingText.style.display="block";
+    btn.textContent="⏸ Παύση";
+    sound.play();
+  }
+});
+
+sound.on('play', ()=>{
+  loadingText.style.display="none";
+  equalizer.style.visibility="visible";
+  btn.textContent="⏸ Παύση";
+});
+sound.on('loaderror', ()=>{
+  loadingText.textContent="⚠ «Δεν ήταν γραφτό. Πάτα ξανά.»";
+  btn.textContent="▶ «Δεν ήταν γραφτό. Πάτα ξανά.»";
+});
+sound.on('end', ()=>{
+  equalizer.style.visibility="hidden";
+  btn.textContent="▶ Πάτα να γίνει χαμός!";
+});
+
+// ===== TOGGLE DESCRIPTION =====
+const toggleDescBtn = document.getElementById("toggleDesc");
+const description = document.querySelector(".description");
+toggleDescBtn.addEventListener("click", ()=>{
+  description.classList.toggle("open");
+  toggleDescBtn.textContent = description.classList.contains("open")
+    ? "❌ Κλείσε την περιγραφή"
+    : "ℹ️ Τι είναι το Mustard Seed Radio;";
+});
+
+// ===== RECAPTCHA =====
+sendBtn.addEventListener('click', () => {
+  const now = Date.now();
+  if (now - lastSent < RATE_LIMIT_MS) {
+    alert(`Περίμενε λίγο πριν στείλεις άλλο μήνυμα (${Math.ceil((RATE_LIMIT_MS - (now - lastSent))/1000)} δευτ.)`);
+    return;
+  }
+  grecaptcha.execute();
+});
+
+// callback for successful reCAPTCHA
+window.onRecaptchaSuccess = function(token){
+  sendMessage();
+}
+</script>
 </body>
 </html>
