@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>Mustard Seed Radio</title>
-
 <link rel="icon" type="image/png" href="mustard-seed-logo.png">
 <link rel="stylesheet" href="style.css">
 
@@ -14,28 +13,17 @@
 
 <header class="navbar">
   <h1>🎧 Mustard Seed</h1>
-
-  <details class="nav-dropdown">
-    <summary>ℹ️ Τι είναι το Mustard Seed Radio;</summary>
-
-    <div class="description">
-      <p>Καφενειακού τύπου κουβέντα για κάθε περίσταση και θέμα.
-      Ένας μουσταρδόσπορος αρκεί, μικρός μεν, αλλά ικανός να πυροδοτήσει ολόκληρη συζήτηση.</p>
-      <p>Είμαστε εφοδιασμένοι με τις απαραίτητες περγαμηνές, μιας και καθόμαστε
-      αναπαυτικά πάνω στον φράχτη που χωρίζει τη Γενιά Χ από τη Γενιά Υ τότε που όλα ήταν λίγο πιο ζάχαρη.</p>
-      <p>Ο παρόν σταθμός και οι εκπομπές του λειτουργούν ως ψυχοθεραπεία για
-      κάποιους από εμάς — χωρίς ιατρική συνταγή! 😌</p>
-    </div>
-  </details>
+  <button id="toggleDesc">ℹ️ Τι είναι το Mustard Seed Radio;</button>
+  <div class="description">
+    <p>Καφενειακού τύπου κουβέντα για κάθε περίσταση και θέμα. Ένας μουσταρδόσπορος αρκεί, μικρός μεν, αλλά ικανός να πυροδοτήσει ολόκληρη συζήτηση.</p>
+    <p>Είμαστε εφοδιασμένοι με τις απαραίτητες περγαμηνές, μιας και καθόμαστε αναπαυτικά πάνω στον φράχτη που χωρίζει τη Γενιά Χ από τη Γενιά Υ τότε που όλα ήταν λίγο πιο ζάχαρη.</p>
+    <p>Ο παρόν σταθμός και οι εκπομπές του λειτουργούν ως ψυχοθεραπεία για κάποιους από εμάς — χωρίς ιατρική συνταγή! 😌</p>
+  </div>
 </header>
 
 <div class="player">
   <button id="playBtn">▶ Πάτα να γίνει χαμός!</button>
-
-  <div class="loading" id="loadingText">
-    ⏳ «Λίγο buffering ακόμα ... το πρόγραμμα μας ταξιδεύει προς τα αυτιά σας! 😜»
-  </div>
-
+  <div class="loading" id="loadingText">⏳ «Λίγο buffering ακόμα ... το πρόγραμμα μας ταξιδεύει προς τα αυτιά σας! 😜»</div>
   <div class="equalizer" id="equalizer">
     <div class="bar"></div>
     <div class="bar"></div>
@@ -57,12 +45,7 @@
 <!-- Howler -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
 
-<!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js"></script>
-
-
+<!-- Firebase Modular SDK -->
 <script type="module" src="player.js"></script>
 
 </body>
