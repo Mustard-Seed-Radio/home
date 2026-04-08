@@ -1,6 +1,14 @@
 const loadingText = document.getElementById("loadingText");
 const equalizer = document.getElementById("equalizer");
 const btn = document.getElementById("playBtn");
+const toggleDescBtn = document.getElementById("toggleDesc");
+const description = document.querySelector(".description");
+
+if (toggleDescBtn && description) {
+  toggleDescBtn.addEventListener("click", () => {
+    description.classList.toggle("open");
+  });
+}
 
 const sound = new Howl({
   src: ['https://centova.gr-net.gr/proxy/mustardseed/stream'],
@@ -37,8 +45,6 @@ sound.on('end', () => {
   btn.textContent = "▶ Πάτα να γίνει χαμός!";
 });
 
-const description = document.querySelector(".description");
-
 toggleDescBtn.addEventListener("click", () => {
   description.classList.toggle("open");
 
@@ -53,6 +59,7 @@ const messages = document.getElementById('messages');
 const sendBtn = document.getElementById('sendBtn');
 
 function sendMessage() {
+  if (!chatInput || !messages) return;
   if (chatInput.value.trim() === '') return;
 
   const msg = document.createElement('div');
@@ -65,8 +72,12 @@ function sendMessage() {
   chatInput.value = '';
 }
 
-sendBtn.addEventListener('click', sendMessage);
+if (sendBtn) {
+  sendBtn.addEventListener('click', sendMessage);
+}
 
-chatInput.addEventListener('keypress', (e) => {
-  if (e.key === 'Enter') sendMessage();
-});
+if (chatInput) {
+  chatInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') sendMessage();
+  });
+}
