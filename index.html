@@ -200,14 +200,18 @@ body {
   <div class="input-area">
     <input type="text" id="chatName" placeholder="Όνομα..." />
     <input type="text" id="chatInput" placeholder="Γράψε μήνυμα..." />
-    <button id="sendBtn" onclick="onSubmit()">Send</button>
+    <button id="sendBtn">Send</button>
   </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
-<!-- Load Google reCAPTCHA v2 Invisible -->
-<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+<!-- Invisible reCAPTCHA widget -->
+<div class="g-recaptcha"
+     data-sitekey="YOUR_SITE_KEY_HERE"
+     data-callback="onRecaptchaSuccess"
+     data-size="invisible"></div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
 import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
@@ -318,16 +322,15 @@ toggleDescBtn.addEventListener("click", ()=>{
 });
 
 // ===== RECAPTCHA =====
-function onSubmit() {
+const sendBtn = document.getElementById('sendBtn');
+sendBtn.addEventListener('click', ()=>{
   grecaptcha.execute();
-}
+});
+
+// callback for successful reCAPTCHA
 window.onRecaptchaSuccess = function(token){
   sendMessage();
 }
 </script>
-
-<!-- Invisible reCAPTCHA widget -->
-<div class="g-recaptcha" data-sitekey="6Lcs260sAAAAAPC0UqtQWnNW5jd_8UKdzOXOn_oY" data-callback="onRecaptchaSuccess" data-size="invisible"></div>
-
 </body>
 </html>
