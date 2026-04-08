@@ -45,39 +45,45 @@ sound.on('end', () => {
   btn.textContent = "▶ Πάτα να γίνει χαμός!";
 });
 
-toggleDescBtn.addEventListener("click", () => {
-  description.classList.toggle("open");
-
-  toggleDescBtn.textContent = description.classList.contains("open")
-    ? "❌ Κλείσε την περιγραφή"
-    : "ℹ️ Τι είναι το Mustard Seed Radio;";
-});
-
 // ===== CHAT =====
 const chatInput = document.getElementById('chatInput');
 const messages = document.getElementById('messages');
 const sendBtn = document.getElementById('sendBtn');
 
+let toggle = false; // alternates sides
+
 function sendMessage() {
-  if (!chatInput || !messages) return;
-  if (chatInput.value.trim() === '') return;
+  if (!chatInput.value.trim()) return;
 
-  const msg = document.createElement('div');
-  msg.className = 'message';
-  msg.textContent = chatInput.value;
+  const msgContainer = document.createElement('div');
+  msgContainer.className = 'container';
+  if (toggle) msgContainer.classList.add('darker');
+  toggle = !toggle;
 
-  messages.appendChild(msg);
+  const avatar = document.createElement('img');
+  avatar.src = toggle ? '/w3images/bandmember.jpg' : '/w3images/avatar_g2.jpg';
+  avatar.alt = 'Avatar';
+  if (!toggle) avatar.classList.add('right');
+
+  const msgText = document.createElement('p');
+  msgText.textContent = chatInput.value;
+
+  const time = document.createElement('span');
+  const now = new Date();
+  time.textContent = now.getHours() + ':' + now.getMinutes().toString().padStart(2,'0');
+  time.className = toggle ? 'time-left' : 'time-right';
+
+  msgContainer.appendChild(avatar);
+  msgContainer.appendChild(msgText);
+  msgContainer.appendChild(time);
+
+  messages.appendChild(msgContainer);
   messages.scrollTop = messages.scrollHeight;
 
   chatInput.value = '';
 }
 
-if (sendBtn) {
-  sendBtn.addEventListener('click', sendMessage);
-}
-
-if (chatInput) {
-  chatInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') sendMessage();
-  });
-}
+sendBtn.addEventListener('click', sendMessage);
+chatInput.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') sendMessage();
+});
