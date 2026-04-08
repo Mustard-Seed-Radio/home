@@ -1,0 +1,26 @@
+<!DOCTYPE patchbay>
+<patchbay name="mixxx_setup" version="0.6.1">
+ <items>
+
+  <!-- Mic into Mixxx -->
+  <item node-type="pipewire" port-type="pipewire-audio">
+   <output port="ZOOM P4 Audio:capture_FL" node="ZOOM P4 Audio Analogue Stereo"/>
+   <input port="input_FL" node="ALSA Capture [mixxx]"/>
+  </item>
+  <item node-type="pipewire" port-type="pipewire-audio">
+   <output port="ZOOM P4 Audio:capture_FR" node="ZOOM P4 Audio Analogue Stereo"/>
+   <input port="input_FR" node="ALSA Capture [mixxx]"/>
+  </item>
+
+  <!-- Mixxx output to speakers -->
+  <item node-type="pipewire" port-type="pipewire-audio">
+   <output port="output_FL" node="ALSA Playback [mixxx]"/>
+   <input port="ALC289 Analog:playback_FL" node="Built-in Audio Analogue Stereo"/>
+  </item>
+  <item node-type="pipewire" port-type="pipewire-audio">
+   <output port="output_FR" node="ALSA Playback [mixxx]"/>
+   <input port="ALC289 Analog:playback_FR" node="Built-in Audio Analogue Stereo"/>
+  </item>
+
+ </items>
+</patchbay>

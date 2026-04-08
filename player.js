@@ -37,7 +37,6 @@ sound.on('end', () => {
   btn.textContent = "▶ Πάτα να γίνει χαμός!";
 });
 
-const toggleDescBtn = document.getElementById("toggleDesc");
 const description = document.querySelector(".description");
 
 toggleDescBtn.addEventListener("click", () => {
@@ -46,4 +45,28 @@ toggleDescBtn.addEventListener("click", () => {
   toggleDescBtn.textContent = description.classList.contains("open")
     ? "❌ Κλείσε την περιγραφή"
     : "ℹ️ Τι είναι το Mustard Seed Radio;";
+});
+
+// ===== CHAT =====
+const chatInput = document.getElementById('chatInput');
+const messages = document.getElementById('messages');
+const sendBtn = document.getElementById('sendBtn');
+
+function sendMessage() {
+  if (chatInput.value.trim() === '') return;
+
+  const msg = document.createElement('div');
+  msg.className = 'message';
+  msg.textContent = chatInput.value;
+
+  messages.appendChild(msg);
+  messages.scrollTop = messages.scrollHeight;
+
+  chatInput.value = '';
+}
+
+sendBtn.addEventListener('click', sendMessage);
+
+chatInput.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') sendMessage();
 });
