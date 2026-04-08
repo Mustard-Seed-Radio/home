@@ -7,7 +7,6 @@
 <link rel="icon" type="image/png" href="mustard-seed-logo.png">
 <style>
 * { margin:0; padding:0; box-sizing:border-box; }
-
 body {
   font-family: 'Helvetica Neue', Arial, sans-serif;
   background: linear-gradient(135deg, #1a1a1a, #111111);
@@ -77,9 +76,8 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 1rem;
-  margin-top: 120px;
+  margin-top: 120px; /* avoid navbar overlap */
 }
-
 #playBtn {
   background: linear-gradient(135deg, #ff6f61, #ffb347);
   color: #111;
@@ -126,11 +124,7 @@ body {
   flex-direction: column;
   margin-top: 2rem;
 }
-
-.chat-container h2 {
-  margin: 8px 0;
-  font-weight: bold;
-}
+.chat-container h2 { margin: 8px 0; font-weight: bold; }
 
 .messages {
   flex: 1;
@@ -170,10 +164,13 @@ body {
 
 @media (max-width:500px) {
   .navbar { flex-direction: column; gap: 10px; }
-  .navbar h1 { font-size: 1.2rem; }
+  .navbar h1 { font-size:1.2rem; }
   .description { right:10px; left:10px; max-width:none; }
   #playBtn { font-size:1rem; padding:14px 26px; }
 }
+
+/* reCAPTCHA hide badge for invisible */
+.grecaptcha-badge { visibility: hidden; }
 </style>
 </head>
 
@@ -203,14 +200,17 @@ body {
   <div class="input-area">
     <input type="text" id="chatName" placeholder="Όνομα..." />
     <input type="text" id="chatInput" placeholder="Γράψε μήνυμα..." />
-    <button id="sendBtn">Send</button>
+    <button id="sendBtn" onclick="onSubmit()">Send</button>
   </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
+<!-- Load Google reCAPTCHA v2 Invisible -->
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getDatabase, ref, push, query, limitToLast, onChildAdded } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
+import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
 
 // ===== FIREBASE CONFIG =====
 const firebaseConfig = {
@@ -227,75 +227,58 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const chatRef = ref(db, 'chat');
 
+// ===== OFFLINE CACHE =====
+let offlineCache = JSON.parse(localStorage.getItem('offlineCache')||'[]');
+function flushCache() {
+  while(offlineCache.length>0){
+    const m = offlineCache.shift();
+    push(chatRef, m);
+  }
+  localStorage.setItem('offlineCache', JSON.stringify(offlineCache));
+}
+
 // ===== CHAT =====
 const chatName = document.getElementById('chatName');
 const chatInput = document.getElementById('chatInput');
 const messages = document.getElementById('messages');
-const sendBtn = document.getElementById('sendBtn');
 const usersColor = {};
-
-// Load cached messages first
-const cached = localStorage.getItem('chatCache');
-if(cached){
-  const arr = JSON.parse(cached);
-  arr.forEach(msg=>{
-    if(!usersColor[msg.name]) usersColor[msg.name] = `hsl(${Math.floor(Math.random()*360)},70%,60%)`;
-    const div = document.createElement('div');
-    div.className='message';
-    div.style.background=usersColor[msg.name];
-    div.style.color='#111';
-    const time = new Date(msg.timestamp).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
-    div.textContent = `[${time}] ${msg.name}: ${msg.text}`;
-    messages.appendChild(div);
-  });
-  messages.scrollTop = messages.scrollHeight;
-}
-
-// Limit to last 50 messages
-const chatQuery = query(chatRef, limitToLast(50));
 
 function sendMessage() {
   const name = chatName.value.trim() || 'Ανώνυμος';
   const text = chatInput.value.trim();
   if(!text) return;
-  push(chatRef, { name, text, timestamp: Date.now() });
+  const msg = { name, text, timestamp: Date.now() };
+
+  if(navigator.onLine){
+    push(chatRef, msg);
+    flushCache();
+  } else {
+    offlineCache.push(msg);
+    localStorage.setItem('offlineCache', JSON.stringify(offlineCache));
+    alert('Offline: μήνυμα θα σταλεί μόλις είστε online');
+  }
   chatInput.value = '';
 }
 
-sendBtn.addEventListener('click', sendMessage);
-chatInput.addEventListener('keypress', e=>{ if(e.key==='Enter') sendMessage(); });
-
-// Display messages and cache
-onChildAdded(chatQuery, snapshot=>{
+// Firebase listener
+onChildAdded(chatRef, snapshot=>{
   const msg = snapshot.val();
   if(!usersColor[msg.name]) usersColor[msg.name] = `hsl(${Math.floor(Math.random()*360)},70%,60%)`;
-
   const div = document.createElement('div');
   div.className='message';
-  div.style.background=usersColor[msg.name];
-  div.style.color='#111';
+  div.style.background = usersColor[msg.name];
+  div.style.color = '#111';
   const time = new Date(msg.timestamp).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
   div.textContent = `[${time}] ${msg.name}: ${msg.text}`;
   messages.appendChild(div);
   messages.scrollTop = messages.scrollHeight;
-
-  // Update cache
-  const currentCache = JSON.parse(localStorage.getItem('chatCache')||'[]');
-  currentCache.push(msg);
-  if(currentCache.length>50) currentCache.shift(); // keep last 50
-  localStorage.setItem('chatCache', JSON.stringify(currentCache));
 });
 
 // ===== AUDIO PLAYER =====
 const loadingText = document.getElementById("loadingText");
 const equalizer = document.getElementById("equalizer");
 const btn = document.getElementById("playBtn");
-
-const sound = new Howl({
-  src: ['https://centova.gr-net.gr/proxy/mustardseed/stream'],
-  html5: true,
-  volume: 1.0
-});
+const sound = new Howl({ src: ['https://centova.gr-net.gr/proxy/mustardseed/stream'], html5:true, volume:1.0 });
 
 btn.addEventListener("click", ()=>{
   if(sound.playing()){
@@ -315,12 +298,10 @@ sound.on('play', ()=>{
   equalizer.style.visibility="visible";
   btn.textContent="⏸ Παύση";
 });
-
 sound.on('loaderror', ()=>{
   loadingText.textContent="⚠ «Δεν ήταν γραφτό. Πάτα ξανά.»";
   btn.textContent="▶ «Δεν ήταν γραφτό. Πάτα ξανά.»";
 });
-
 sound.on('end', ()=>{
   equalizer.style.visibility="hidden";
   btn.textContent="▶ Πάτα να γίνει χαμός!";
@@ -335,7 +316,18 @@ toggleDescBtn.addEventListener("click", ()=>{
     ? "❌ Κλείσε την περιγραφή"
     : "ℹ️ Τι είναι το Mustard Seed Radio;";
 });
+
+// ===== RECAPTCHA =====
+function onSubmit() {
+  grecaptcha.execute();
+}
+window.onRecaptchaSuccess = function(token){
+  sendMessage();
+}
 </script>
+
+<!-- Invisible reCAPTCHA widget -->
+<div class="g-recaptcha" data-sitekey="6Lcs260sAAAAAPC0UqtQWnNW5jd_8UKdzOXOn_oY" data-callback="onRecaptchaSuccess" data-size="invisible"></div>
 
 </body>
 </html>
